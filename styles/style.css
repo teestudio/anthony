@@ -1,0 +1,165 @@
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: #fafafa;
+}
+
+a {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #333;
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 3em;
+}
+
+h2 {
+    font-size: 2em;
+}
+
+h3 {
+    font-size: 1.8em;
+}
+
+article h1 {
+    font-size: 2.2em;
+}
+
+article a h1 span {
+    border-bottom: 1px dotted #999;
+}
+
+article p {
+    text-align: justify;
+    padding-right: 10px;
+}
+
+article pre {
+    word-wrap: break-word;
+}
+
+article.at-shortened img {
+    float: left;
+    max-width: 140px;
+    padding-right: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+article img:first-of-type {
+
+}
+
+.at-articles article a, .at-footer a {
+    border-bottom: 1px dotted #999;
+}
+
+article p a:before {
+    content: "↗";
+}
+
+.at-clear {
+    clear: both;
+}
+
+.at-inline {
+    display: inline;
+}
+
+.at-left {
+    padding-top: 30px;
+    padding-right: 60px;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.at-wrap0 {
+    max-width: 800px;
+    background: #fff;
+}
+
+.at-wrap1 {
+    display: table-cell;
+    padding-right: 10px;
+    padding-top: 0;
+    vertical-align: top;
+}
+
+.at-header {
+    padding-top: 15px;
+    padding-left: 20px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid #eee;
+}
+
+.at-menu {
+    width: 100%;
+}
+
+.at-menu-element {
+    display: inline-block;
+    border-bottom: 1px dotted #999;
+    margin-right: 40px;
+}
+
+.at-menu-element:before {
+    content: "↗ ";
+}
+
+.at-stats h3 {
+    display: inline-block;
+    border-bottom: 1px dotted #999;
+}
+
+.at-taglist {
+    font-weight: normal;
+    color: #555;
+    font-style: italic;
+}
+
+.at-articles {
+    margin-bottom: 40px;
+}
+
+.at-tag-stats {
+    margin-left: 20px;
+}
+
+.at-read-more {
+    font-weight: normal;
+    color: #555;
+    font-style: italic;
+    text-align: right;
+    display: block;
+    margin-right: 15px;
+}
+.at-read-more-inner {
+    display: inline;
+    border-bottom: 1px dotted #999;
+}
+
+.at-read-more-inner:before {
+    content: "↗ ";
+}
+
+.at-footer {
+    display: block;
+    text-align: center;
+    color: #999;
+    padding-bottom: 20px;
+}
+
+.at-footer > div {
+    padding-top: 20px;
+    font-size: 0.75em;
+}
+
+.at-page-button {
+    display: inline-block;
+    padding: 12px;
+}
+
+.at-button-active div {
+    background: #ccc;
+}

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Энтони Тистудио</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" media="all" href="/styles/style.css" type="text/css" />
+    </head>
+    <body>
+        <a name="top"></a>
+        <div class="at-wrap0">
+            <div class="at-left">
+                <img src="/img/suit.png" alt="YOBA"/>
+            </div>
+            <div class="at-wrap1">
+                <div class="at-header">
+                    <h1>Энтони Тистудио</h1>
+                    <div class="at-menu">
+                        <div>
+                            <a href="/">
+                                <div class="at-menu-element">
+                                    Главная
+                                </div>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="/tags/код/1">
+                                <div class="at-menu-element">
+                                    Код
+                                </div>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="/portfolio">
+                                <div class="at-menu-element">
+                                    Портфолио
+                                </div>
+                            </a>
+                        </div>
+                        <div>
+                            <a href="/contact">
+                                <div class="at-menu-element">
+                                    Контакты
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="at-content">
+<div class="at-stats">
+</div>
+<div class="at-articles">
+<article>
+    <a href="/entries/statique1st"><h1><span>Statique в деле</span></h1></a>
+    <div class="at-stats-panel">
+        <h4 class="at-inline">26 июля 2015 в 21:30</h4> <h4 class="at-inline at-taglist at-tag-stats">
+            Теги:
+                <a href="/tags/statique/1">statique</a>,                <a href="/tags/код/1">код</a>,                <a href="/tags/инструкция/1">инструкция</a>        </h4>
+    </div>
+    <div class="at-article-content">
+
+<p>Statique - система, которая создавалась с расчетом на максимальную простоту. Думаю, что никому не составит большого труда сделать свой собственный статический блог, используя богатый инструмантарий системы для обработки данных.</p>
+
+<h1>Начало работы</h1>
+
+<p>Набор программ и библиотек, необходимых для работы со Statique, минимален: достаточно обычного интерпретатора Lua, который есть чуть ли не на каждой Unix-машине.</p>
+
+<p>Но если нет, то:</p>
+
+<h2>Ubuntu/Debian</h2>
+
+<pre><code>$ sudo apt-get install lua5.2
+</code></pre>
+
+<h2>FreeBSD</h2>
+
+<pre><code>% su
+# pkg install lua
+</code></pre>
+
+<h2>OS X</h2>
+
+<p>Ставим Lua по <a href="https://github.com/keplerproject/luarocks/wiki/Installation-instructions-for-Mac-OS-X">инструкции</a>.</p>
+
+<h2>Windows</h2>
+
+<p>Ставим Lua по <a href="https://github.com/keplerproject/luarocks/wiki/Installation-instructions-for-Windows">инструкции</a> (они выглядят не так просто, так что как-нибудь запилю инсталлятор).</p>
+
+<h1>Необходимые пакеты</h1>
+
+<p>Так-то у Statique нет <em>вообще</em> никаких зависимостей от сторонних библиотек, но для использования в стандартной конфигурации некоторые придется составить. Ставим <a href="https://luarocks.org/">LuaRocks</a> и выполняем (не забываем про рут на Unix-машинах):</p>
+
+<pre><code># luarocks install lua-resty-template lfs
+# luarocks install markdown # Можно прихватить и Markdown-разметку
+</code></pre>
+
+<h1>Сборка</h1>
+
+<p>Прежде всего нам нужен <strong>мейкфайл</strong>. В Statique он является обычным Lua-скриптом. Дефолтное название такого в системе - make.lua.</p>
+
+<pre><code>-- Задаем список 
+stq.p.entry_lists = {
+    entries = {
+        -- Папка с записями
+        file = "entries/",
+        -- Скрипт пост-обработки записи
+        postprocess = "ppentry.lua"
+    }
+}
+
+-- Скрипты создания страниц
+ stq.p.files = {
+    "index.lua",
+    "entries.lua"
+}
+
+-- Добавим парсер
+stq.p.markup_parsers = {
+    Markdown = {
+        init  = function() require "markdown"  end,
+        parse = function(d) return {data = markdown(d)} end
+    }
+}
+
+-- Вкючим LuaFileSystem, чтобы получать данные о файлах записей
+-- (конкретно - дате изменения)
+stq.p.lfs_enabled  = true
+
+-- Просто наша собственная переменная, которую мы будем просто
+-- использовать как константу
+stq.p.posts_per_page = 10
+
+-- Можно настроить обработчики событий на задания...
+stq.p.tasks.compile = {
+    pre = function() print "Building process has been started" end,
+    post = function() print "Building process has been finished" end
+}
+
+-- А можно и добавить свои задания!
+stq.p.tasks.fun = {exec = function(files) print "lol" end}
+</code></pre>
+
+<p>Изначально в Statique присутствуют два задания:</p>
+
+<ol>
+    <li><strong>compile</strong> - собирает проект</li>
+    <li><strong>clean</strong> - удаляет результаты сборки </li>
+</ol>
+
+<p>Запускается сборка очень просто (compile - дефолтное задание):</p>
+
+<p><code>lua statique.lua</code></p>
+
+<p>Вот так мы запускаем конкретное задание:</p>
+
+<p><code>lua statique.lua clean</code></p>
+
+<p>А если напишем несколько, то они будут выполнены по порядку:</p>
+
+<p><code>lua statique.lua compile clean fun</code></p>
+
+<p>Все собранные файлы можно будет видеть в папке <code>out/</code>, но можно и задать самому в мейкфайле:</p>
+
+<pre><code>-- Не забываем про слеш на конце
+stq.p.output_dir = "stqrules/"
+</code></pre>
+
+<h1>Запись</h1>
+
+<p>Запись - важный концепт системы. Запись имеет <em>содержание</em> и <em>параметры</em>, которые после разным образом преобразовываются в страницы. Вот такую структуру имеет запись в Statique:</p>
+
+<pre><code>&lt;\!
+-- Все между тегами &lt;\! и \!&gt; является скриптом Lua, испольняемым при парсинге
+-- params - таблица, в которую можно записать параметры записи. Парсер сохранит
+-- их вместе с записью. Никаких обязательных параметров нет.
+params.title  = "Statique рулит"
+params.tags   = {"statique", "колобок", "пышечка", "perekat"}
+params.entry_id = "statique"
+
+-- Параметр __markup задает разметку
+params.__markup = "Markdown"
+-- Все, что содержится в таблице __parsed, будет (удивительно!) отпарсено
+-- В __parsed.short можно поместить сокращенный вариант поста
+params.__parsed.short =
+[[
+Statique тащит - интересно почему? Открой полный пост!]]
+\!&gt;
+
+&lt;!-- А тут уже идет запись, печатаемая в конечный файл --&gt;
+Statique тащит, потому что его сделал Повелитель Колобков Энтони Тистудио!
+</code></pre>
+
+<p>Записи объединяются в <em>списки</em>, которые являются - вы сейчас удивитесь - списками записей. По дефолту Statique читает все файлы (кроме скрытых) с одного уровня указанной папки и, если надо, запускает пост-обработчик (как он используется - расскажем ниже). Если необходимо прочитать только определенные записи, то нужно создать в папке с записями файл <strong>.entries_list</strong>, который на каждой строке будет содержать имя нужного файла:</p>
+
+<pre><code>entry1.md
+hello.md
+spitefulpotatosucks.md
+</code></pre>
+
+<p>, а затем добавить в мейкфайл строчку:</p>
+
+<pre><code>stq.p.entry_list_files_enabled = true
+</code></pre>
+
+<p>Запись представляет собой таблицу, содержащую следующие поля:</p>
+
+<ul>
+    <li><strong>lua</strong> - Lua-скрипт из записи</li>
+    <li><strong>data</strong> - таблица с полем <em>data</em>, в котором находится содержимое записи</li>
+    <li><strong>params</strong> - таблица параметров</li>
+    <li><ul>
+        <li><strong>params.src</strong> - данные об источнике записи. Для файлов содержат дату создания, изменения и подобное</li>
+    </ul></li>
+    <li><ul>
+        <li><ul>
+            <li><strong>params.src.entry_name</strong> - имя записи, заполняемое парсером - имя файла, в котором запись находится</li>
+        </ul></li>
+    </ul></li>
+</ul>
+
+<p>Помимо внутренних средств вывода Statique, этими таблицами оперируют скрипты сборки.</p>
+
+<h1>Скрипты сборки</h1>
+
+<h2>Один скрипт как одна страница</h2>
+
+<p>Просто Lua-скрипты, которые последовательно запускаются системой. Именно они занимаются генерированием страниц. Как они это делают? Да очень просто!</p>
+
+<p>Вот так может выглядеть скрипт статической страницы:</p>
+
+<pre><code>stq.current = {name = "contact/index.html"}
+
+-- напрямую записать файл
+stq.raw "templates/head.html"
+stq.raw "templates/contactbody.html"
+-- обработать парсером шаблонов
+stq.template "templates/gamelist.html" {games = {"Perekat"}}
+stq.raw "templates/footer.html"
+</code></pre>
+
+<p>Рассмотрим, что же тут происходит:</p>
+
+<ul>
+    <li><strong>stq.current</strong> - таблица, содержащая имя текущего файла для записи</li>
+    <li><strong>stq.raw</strong> - метод, просто записывающий данный файл</li>
+    <li><strong>stq.template</strong> - метод, обрабатывающий шаблон из данного файла и в качестве параметров шаблону передающий таблицу</li>
+</ul>
+
+<p>Внимательный (и опытный в Lua) читатель мог заметить, что вызов метода <code>stq.template "templates/gamelist.html" {games = {"Perekat"}}</code>, мягко говоря, выглядит странно: обычную функцию <code>function(a, b)</code> так вызвать не получится. Чтобы сделать скрипты более красивыми и избавиться от скобок там, где это требуется, я сделал так, что если <code>stq.raw</code> вызывается с одним параметром, то он возвращает функцию, к которой нужно будет добавить второй параметр. Получается что-то похожее на функцию из Haskell.</p>
+
+<h2>Один скрипт как несколько страниц</h2>
+
+<p>Если вы когда-то писали сайты на PHP, то наверняка помните, что скрипт обычно в зависиомости от разных внешних факторов (данные GET-, POST-запросов, куки) в один запуск выдает одну страницу. У нас философия несколько иная. <em>Почти</em> (почему почти - см. про пост-обработчики) все данные скрипт сам достает и, будучи исполненным лишь единожды, генерирует множество страниц. Это как раз то, что нужно для работы с записями.</p>
+
+<p>Вот, например, скрипт, генерирующий страницы для каждой из данных нам записей:</p>
+
+<pre><code>-- Метод, выводящий последовательно несколько страниц записей (но можно
+-- использовать и не для страниц, а для каждой записи в отдельности, что
+-- мы и делаем)
+stq.pages {
+
+    -- Помните про наш список записей?
+    entries = stq.entry_lists.entries,
+    -- Количество постов на "странице"
+    entriesPerPage = 1,
+
+    -- Метод, который вызывается при каждом проходе по "странице"
+    callback = function(p)
+
+    -- Начинаем писать в файл
+    stq.begin()
+
+    -- Получаем текущую запись. Так как на каждой странице у нас одна запись, то
+    -- номер нынешней - индекс в массиве записей.
+    local entry = p.entries[p.currentPage]
+    local id = entry.params.entry_id
+
+    -- Адрес страницы
+    page = {name = "entries/" .. id .. "/index.html"}
+
+    stq.raw "templates/head.html"
+
+    -- Печатаем запись
+    stq.entry "templates/entry.html" {entry = entry}
+
+    stq.raw "templates/footer.html"
+
+    -- Сохраняем запись
+    stq.flush(page)
+end
+}
+</code></pre>
+
+<p>Тут появилось несколько новых методов:</p>
+
+<ul>
+    <li><strong>stq.begin</strong> - начинает запись в файл, а</li>
+    <li><strong>stq.flush</strong> - заканчивает, Каждый в отдельности файл выводится между <code>begin</code> и <code>flush</code>, так что эти методы как раз и используются тогда, когда нужно вывести несколько файлов.</li>
+    <li><strong>stq.page</strong> - вызывает переданный ему <code>callback</code> для вывода каждой страницы. Будет рассмотрен ниже.</li>
+    <li><strong>stq.entry</strong> - просто выводит запись по данному шаблону.</li>
+</ul>
+
+<p>Ладно, сохранение каждой записи - уже хорошо, но неинтересно: подобное можно сделать руками или каким-нибудь bash-скриптом. Что, если нам надо разбить новости по 5, 10, n страниц на каждой? Изменения с предыдущим вариантом минимальны:</p>
+
+<pre><code>stq.pages {
+
+    entries = stq.entry_lists.entries,
+    -- Выводим по 10 постов на странице
+    entriesPerPage = 10,
+
+    -- Метод, который вызывается при каждом проходе по "странице"
+    callback = function(p)
+
+    -- Начинаем писать в файл
+    stq.begin()
+
+    -- Адрес страницы
+    page = {name = "entries/" .. id .. "/index.html"}
+
+    stq.raw "templates/head.html"
+
+    -- Печатаем запись
+    stq.entries "templates/entry.html"
+        {
+            -- Список записей
+            entries = p.entries,
+            -- Индекс первой записи                
+            begin = p.firstEntry,
+            -- Количество записей, которые нужно вывести
+            num = p.numberOfEntries}
+
+    stq.raw "templates/footer.html"
+
+    -- Сохраняем запись
+    stq.flush(page)
+end
+}
+</code></pre>
+
+<p>Обращаем внимание на метод</p>
+
+<ul>
+    <li><strong>stq.entries</strong> - он выводит <code>num</code> записей <code>entries</code> по шаблону, начиная с индекса <code>begin</code>. Если <code>num</code> и <code>begin</code> не указаны, то выводит весь массив.</li>
+</ul>
+
+<h2>stq.pages</h2>
+
+<p>Этот метод настолько крут и важен, что, пожалуй, вполне достоин отдельного раздела. Он принимает в качестве параметра таблицу со следующими полями:</p>
+
+<ul>
+    <li><strong>entries</strong> - список записей <em>(обязательно)</em></li>
+    <li><strong>callback</strong> - метод обратного вызова, вызываемый при обработке каждой страницы <em>(обязательно)</em></li>
+    <li><strong>firstPage</strong> - номер первой страницы для обработки. Если не указано, то 1.</li>
+    <li><strong>numberOfPages</strong> - количество страниц для обработки. Если не указано, то все от <code>firstPage</code> до последней.</li>
+    <li><strong>entriesPerPage</strong> - количество записей на одной странице. Если не указано, то 5.</li>
+</ul>
+
+<p>Итак, для обработки каждой записи он вызывает <code>callback</code> с таблицей, содержащей следующие поля, в качестве параметра:</p>
+
+<ul>
+    <li><strong>entries</strong> - тот же самый список записей</li>
+    <li><strong>currentPage</strong> - страница, которая обрабатывается сейчас</li>
+    <li><strong>numberOfPages</strong> - общее количество страниц, которые будут обработаны</li>
+    <li><strong>firstEntry</strong> -индекс первой записи на странице</li>
+    <li><strong>numberOfEntries</strong>  - количество записей на странице *(может не совпадать с <code>entriesPerPage</code>,</li>
+    <li><strong>desiredNumberOfPages</strong> - количество страниц, которое было бы, если бы обрабатывались все записи с первой страницы - бывает полезно</li>
+</ul>
+
+<p>Так как мы предполагали, что для пользователей этот метод станет одним из важнейших (если не самым), то потому и привели столь полное ее описание.</p>
+
+<h2>Шаблонизатор</h2>
+
+<p>Тема, которую мы еще особо не затронули. По умолчанию Statique использует шаблонизатор <em>lua-resty-template</em>, синтаксис которого доступен <a href="https://github.com/bungle/lua-resty-template">здесь</a>.</p>
+
+<h2>Пост-обработчик записей</h2>
+
+<p>Вот и добрались до одной из интереснейших фич системы. Пост-обработчики принимают в качестве параметра запись и <em>общую таблицу данных</em> - <code>stq.shared</code>. В эту самую таблицу и пишут, равно как и читают. Как мы это можем использовать?</p>
+
+<p>Предположим, у нас есть записи, и их нам надо отсортировать по тегам и сделать для каждого тега страницы. Что нужно сделать для начала? Для начала нам нужно получить список всех тегов, используемых всеми записями из списка - в этом нам пост-обработчик и поможет.</p>
+
+<pre><code>-- entry - запись, env - общая таблица
+entry, env = ...
+-- Если таблицы тегов еще нет, то создадим
+if env.used_tags == nil then
+    env.used_tags = {}
+end
+-- Заливаем уникальные значения
+if entry.params.tags then
+    stq.fillUniqueValues(env.used_tags, entry.params.tags)
+end
+</code></pre>
+
+
+<p>Достаточно просто, не так ли? Теперь нам будет очень легко генерировать страницы для тегов.</p>
+
+<pre><code>local allEntries = stq.entry_lists.entries
+
+-- Достаем теги из общей таблицы...
+local tags = stq.shared.used_tags
+
+-- ...и перебираем их
+for i=1,#tags do
+    local tag = tags[i]
+    -- Отфильтруем нужные нам записи
+    local entries = stq.filter(allEntries, function(entry)
+        local params = entry.params
+        return stq.tableContains(params.tags, tag)
+    end)
+
+    -- Записываем
+    stq.pages {entries = entries, entriesPerPage = 10, callback = function(p)
+
+            stq.begin()
+
+            page = {name = "tags/" .. tag .. "/" .. p.currentPage .. "/index.html"}
+
+            stq.raw "templates/head.html"
+
+            stq.entries "templates/entry.html"
+                {entries = p.entries, begin = p.firstEntry, num = p.numberOfEntries}
+
+            stq.raw "templates/footer.html"
+
+            stq.flush(page)
+        end
+    }
+end
+</code></pre>
+
+<p>Тут повстречались некоторые вспомогательные методы, которые используются для работы с таблицами</p>
+
+<ul>
+    <li><strong>stq.fillUnique</strong> - он заливает уникальные значения в одну таблицу из другой</li>
+    <li><strong>stq.filter</strong> - фильтрует таблицу, вызывая данный метод с каждой записью; если метод возвращает <code>true</code>, то элемент попадает в фильтрованную таблицу, если <code>false</code> - не попадает </li>
+</ul>
+
+<h2>Параметры запуска</h2>
+
+<p>Вот вроде и все, что пока <em>хотелось</em> рассказать о Statique. Здесь не была затронута тема системы ввода и вывода - при желании можно заставить Statique читать записи и из БД, а можно и заставить их туда писать, но об этом позже. Скоро система станет доступна на Github, документация будет готова позже. В качестве бонуса предлагаем ознакомиться с параметрами запуска системы - их всего три:</p>
+
+<ul>
+    <li><strong>-m=</strong>, <strong>--makefile=</strong> - задает название мейкфайла</li>
+    <li><strong>-p&lt;param&gt;=</strong> - задает параметр; даже если он уже задан в мейкфайле, он будет переписан. Значением ключа является строка кода Lua, поэтому запись типа -pnumber=5*5 допустима.</li>
+    <li><strong>-h</strong>, <strong>--help</strong> - выводит помощь</li>
+</ul>
+
+</div>
+</article>
+<div>
+</div>
+</div>
+                </div>
+            </div>
+            <div class="at-clear"></div>
+            <div class="at-footer">
+                <a href="#top">↑ Наверх</a>
+                <div>
+                    <div>&copy; 2015 Teestudio Foundation, Russia</div>
+                    <div>&copy; 2015 Anthony Teestudio</div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
